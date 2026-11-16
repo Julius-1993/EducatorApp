@@ -1676,7 +1676,7 @@ function ResultScreen({ winner, cfg, scores, questions, history, onReplay, onHom
 export default function App() {
   const [cfg, setCfg] = useState(() => { const s = ls.get("etow_cfg") || {}; Sound.setMuted(s.muted || false); return { muted: false, ...s }; });
   const [screen, setScreen] = useState("splash");
-  const [showIntro, setShowIntro] = useState(true);       // EdTek logo splash before the home screen
+  const [showIntro, setShowIntro] = useState(true);
   const [showAcademy, setShowAcademy] = useState(false);
   const [gameCfg, setGameCfg] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -1768,7 +1768,7 @@ export default function App() {
     setLoading(false);
   }
 
-  // ── ANSWER HANDLER ──────────────────────────────────────────────────────────
+  // ANSWER HANDLER
   // Called by human click OR by AI auto-play
   function handleAnswer(idx) {
     if (revealed || aiThink) return;
@@ -1799,7 +1799,7 @@ export default function App() {
     setHistory(h => [...h, { selected: -1, correct: false, answer: questions[qIndex].answer, player: curPlayer, qIndex: qIndex }]);
   }
 
-  // ── NEXT QUESTION ────────────────────────────────────────────────────────────
+  // NEXT QUESTION
   // In ALL multi-player modes: after each answer, switch who plays next
   function nextQuestion() {
     if (qIndex >= questions.length - 1) {
@@ -1817,7 +1817,7 @@ export default function App() {
     }
   }
 
-  // ── FINISH GAME ──────────────────────────────────────────────────────────────
+  // ── FINISH GAME 
   function finishGame(win, sc) {
     setWinner(win);
     if (win >= 0) {
@@ -1836,7 +1836,7 @@ export default function App() {
 
   function reset() { setShowAcademy(false); setScreen("splash"); setLoading(false); setLoadErr(""); setQuestions([]); setGameCfg(null); setShowConfetti(false); }
 
-  // ── AI AUTO-PLAY ─────────────────────────────────────────────────────────────
+  // AI AUTO-PLAY
   // Fires when: mode is ai, it's AI's turn (curPlayer===1), and not already revealed
   // Ref guard: prevents AI from firing twice on the same question
   const aiPlayedRef = useRef(false);
@@ -1844,11 +1844,11 @@ export default function App() {
 
   useEffect(() => {
     if (gameCfg?.mode !== "ai") return;
-    if (curPlayer !== 1) return;        // only fire on AI's turn
-    if (revealed) return;             // don't fire after answer revealed
+    if (curPlayer !== 1) return;        
+    if (revealed) return;            
     if (!questions[qIndex]) return;
-    if (aiPlayedRef.current) return;  // already played this question
-    aiPlayedRef.current = true;      // lock immediately to prevent double-fire
+    if (aiPlayedRef.current) return; 
+    aiPlayedRef.current = true;
     setAiThink(true);
     const delay = 900 + Math.random() * 1100;
     const t = setTimeout(() => {
