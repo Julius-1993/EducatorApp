@@ -19,7 +19,6 @@ import {
 
 
 // ── NIGERIA CURRICULUM
-
 const ls = { get: k => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } }, del: k => { try { localStorage.removeItem(k); } catch { } } };
 const DB_KEY = "etow_ng_qdb_v1", QUEUE_KEY = "etow_ng_sync_queue", BANK_KEY = "etow_ng_bank_v1", LB_KEY = "etow_ng_lb_v1", META_KEY = "etow_ng_meta_v1";
 // ── SILENT REMOTE DB — owner-configured, never shown to users ──
@@ -331,7 +330,7 @@ function Modal({ title, subtitle, onClose, wide, children }) {
   </div></div>);
 }
 
-// ── SETTINGS MODAL ────────────────────────────────────────────────────────────
+// SETTINGS MODAL
 function SettingsModal({ cfg, setCfg, onClose }) {
   const [muted, setMuted] = useState(cfg.muted || false);
   function save() { const u = { ...cfg, muted }; setCfg(u); ls.set("etow_cfg", u); Sound.setMuted(muted); onClose(); }
@@ -350,7 +349,7 @@ function SettingsModal({ cfg, setCfg, onClose }) {
   </Modal>);
 }
 
-// ── TEACHER PORTAL ────────────────────────────────────────────────────────────
+// TEACHER PORTAL
 function TeacherModal({ cfg, onClose, onSaved }) {
   const [tab, setTab] = useState("generate");
   const [lk, setLk] = useState(""); const [cn, setCn] = useState(""); const [sub, setSub] = useState("");
@@ -543,7 +542,7 @@ function TeacherModal({ cfg, onClose, onSaved }) {
   </Modal>);
 }
 
-// ── MANUAL QUESTION ENTRY TAB ─────────────────────────────────────────────────
+// MANUAL QUESTION ENTRY TAB
 function ManualQuestionsTab({ onSaved, onDone }) {
   const BLANK_Q = () => ({
     q: "", options: ["A) ", "B) ", "C) ", "D) "], answer: 0,
@@ -787,7 +786,7 @@ function QEditor({ q, onSave, onCancel }) {
   </div>);
 }
 
-// ── LEADERBOARD ───────────────────────────────────────────────────────────────
+// LEADERBOARD 
 function LeaderboardModal({ onClose }) {
   const [lb, setLb] = useState(lbGet);
   return (<Modal title="Leaderboard" onClose={onClose}>
@@ -812,135 +811,767 @@ function LeaderboardModal({ onClose }) {
   </Modal>);
 }
 
-// ── TUG ROPE ──────────────────────────────────────────────────────────────────
-function TugRope({ position, p1, p2, p1Active, p2Active }) {
-  const kp = 50 + (position / 100) * 38;
-  // Rope curves from left edge (x=22) to right edge (x=78) — space for big figures
-  const pts = Array.from({ length: 30 }, (_, i) => { const t = i / 29; return { x: 30 + t * 80, y: 56 + Math.sin(Math.PI * t) * 7 }; });
-  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  // Knot travels along that same curve
-  const kx = 30 + (kp / 100) * 80;
-  const ky = 56 + Math.sin(Math.PI * ((kx - 30) / 80)) * 7;
-  const p1Win = position > 25, p2Win = position < -25;
+// TUG ROPE 
+// function TugRope({ position, p1, p2, p1Active, p2Active }) {
+//   const kp = 50 + (position / 100) * 38;
+//   // Rope curves from left edge (x=22) to right edge (x=78) — space for big figures
+//   const pts = Array.from({ length: 30 }, (_, i) => { const t = i / 29; return { x: 30 + t * 80, y: 56 + Math.sin(Math.PI * t) * 7 }; });
+//   const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+//   // Knot travels along that same curve
+//   const kx = 30 + (kp / 100) * 80;
+//   const ky = 56 + Math.sin(Math.PI * ((kx - 30) / 80)) * 7;
+//   const p1Win = position > 25, p2Win = position < -25;
 
-  return (<div style={{ width: "100%" }}>
-    {/* Player name labels */}
-    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, padding: "0 4px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: p1Win ? "var(--emerald)" : "var(--mist)", boxShadow: p1Win ? "0 0 8px var(--emerald)" : "none", transition: "all .3s" }} />
-        <span style={{ fontWeight: 800, fontSize: "var(--t-sm)", color: p1Win ? "#86efac" : p1Active ? "var(--amber)" : "var(--text3)", transition: "color .3s" }}>{p1}</span>
-        {p1Active && !p1Win && <span style={{ fontSize: "var(--t-xs)", color: "var(--amber)", fontWeight: 700, animation: "pulse 1s infinite" }}></span>}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        {p2Active && !p2Win && <span style={{ fontSize: "var(--t-xs)", color: "var(--amber)", fontWeight: 700, animation: "pulse 1s infinite" }}></span>}
-        <span style={{ fontWeight: 800, fontSize: "var(--t-sm)", color: p2Win ? "#86efac" : p2Active ? "var(--amber)" : "var(--text3)", transition: "color .3s" }}>{p2}</span>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: p2Win ? "var(--emerald)" : "var(--mist)", boxShadow: p2Win ? "0 0 8px var(--emerald)" : "none", transition: "all .3s" }} />
-      </div>
-    </div>
+//   return (<div style={{ width: "100%" }}>
+//     {/* Player name labels */}
+//     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, padding: "0 4px" }}>
+//       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+//         <div style={{ width: 10, height: 10, borderRadius: "50%", background: p1Win ? "var(--emerald)" : "var(--mist)", boxShadow: p1Win ? "0 0 8px var(--emerald)" : "none", transition: "all .3s" }} />
+//         <span style={{ fontWeight: 800, fontSize: "var(--t-sm)", color: p1Win ? "#86efac" : p1Active ? "var(--amber)" : "var(--text3)", transition: "color .3s" }}>{p1}</span>
+//         {p1Active && !p1Win && <span style={{ fontSize: "var(--t-xs)", color: "var(--amber)", fontWeight: 700, animation: "pulse 1s infinite" }}></span>}
+//       </div>
+//       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+//         {p2Active && !p2Win && <span style={{ fontSize: "var(--t-xs)", color: "var(--amber)", fontWeight: 700, animation: "pulse 1s infinite" }}></span>}
+//         <span style={{ fontWeight: 800, fontSize: "var(--t-sm)", color: p2Win ? "#86efac" : p2Active ? "var(--amber)" : "var(--text3)", transition: "color .3s" }}>{p2}</span>
+//         <div style={{ width: 10, height: 10, borderRadius: "50%", background: p2Win ? "var(--emerald)" : "var(--mist)", boxShadow: p2Win ? "0 0 8px var(--emerald)" : "none", transition: "all .3s" }} />
+//       </div>
+//     </div>
 
-    {/* Main SVG — bigger viewBox to fit large player figures */}
-    <svg viewBox="0 0 140 110" preserveAspectRatio="xMidYMid meet"
-      style={{ width: "100%", height: "clamp(120px,20vw,180px)", display: "block", overflow: "visible" }}>
+//     {/* Main SVG — bigger viewBox to fit large player figures */}
+//     <svg viewBox="0 0 140 110" preserveAspectRatio="xMidYMid meet"
+//       style={{ width: "100%", height: "clamp(120px,20vw,180px)", display: "block", overflow: "visible" }}>
 
-      {/* Ground shadow strip */}
-      <rect x="12" y="82" width="116" height="4" rx="2" fill="#00000033" />
+//       {/* Ground shadow strip */}
+//       <rect x="12" y="82" width="116" height="4" rx="2" fill="#00000033" />
 
-      {/* Danger zones */}
-      <rect x="12" y="20" width="18" height="70" rx="3" fill="#ef444408" />
-      <rect x="110" y="20" width="18" height="70" rx="3" fill="#ef444408" />
+//       {/* Danger zones */}
+//       <rect x="12" y="20" width="18" height="70" rx="3" fill="#ef444408" />
+//       <rect x="110" y="20" width="18" height="70" rx="3" fill="#ef444408" />
 
-      {/* Centre line */}
-      <line x1="70" y1="20" x2="70" y2="88" stroke="var(--border2)" strokeWidth=".6" strokeDasharray="3,3" />
+//       {/* Centre line */}
+//       <line x1="70" y1="20" x2="70" y2="88" stroke="var(--border2)" strokeWidth=".6" strokeDasharray="3,3" />
 
-      {/* ── PLAYER 1 FIGURE (left) — bold SVG person ── */}
-      {/* Body glow when winning */}
-      {p1Win && <circle cx="18" cy="54" r="14" fill="#22c55e22" style={{ filter: "blur(4px)" }} />}
-      {/* Head */}
-      <circle cx="18" cy="36" r="8"
-        fill={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "#c8ddd2"}
-        stroke={p1Win ? "var(--emerald)" : p1Active ? "var(--amber)" : "var(--border2)"}
-        strokeWidth="1.5" />
-      {/* Face */}
-      <circle cx="15" cy="35" r="1.1" fill={p1Win || p1Active ? "var(--ink)" : "var(--ink3)"} />
-      <circle cx="21" cy="35" r="1.1" fill={p1Win || p1Active ? "var(--ink)" : "var(--ink3)"} />
-      <path d={p1Win ? "M14 39.5 Q18 42 22 39.5" : "M14 39 Q18 40.5 22 39"} fill="none"
-        stroke={p1Win || p1Active ? "var(--ink)" : "var(--ink3)"} strokeWidth=".9" strokeLinecap="round" />
-      {/* Torso */}
-      <rect x="11" y="45" width="14" height="20" rx="4"
-        fill={p1Win ? "#22c55e" : p1Active ? "var(--amber)" : "#3a5a48"}
-        stroke={p1Win ? "var(--emerald)" : p1Active ? "var(--rust)" : "var(--border2)"}
-        strokeWidth="1.2" />
-      {/* Arms pulling rope — angled forward */}
-      <line x1="25" y1="49" x2="30" y2="54" stroke={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
-      <line x1="25" y1="54" x2="30" y2="58" stroke={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
-      {/* Legs */}
-      <line x1="15" y1="65" x2="13" y2="82" stroke={p1Win ? "#22c55e" : p1Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
-      <line x1="21" y1="65" x2="23" y2="82" stroke={p1Win ? "#22c55e" : p1Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
-      {/* Feet */}
-      <rect x="10" y="81" width="8" height="4" rx="2" fill={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} />
-      <rect x="20" y="81" width="8" height="4" rx="2" fill={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} />
+//       {/* ── PLAYER 1 FIGURE (left) — bold SVG person ── */}
+//       {/* Body glow when winning */}
+//       {p1Win && <circle cx="18" cy="54" r="14" fill="#22c55e22" style={{ filter: "blur(4px)" }} />}
+//       {/* Head */}
+//       <circle cx="18" cy="36" r="8"
+//         fill={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "#c8ddd2"}
+//         stroke={p1Win ? "var(--emerald)" : p1Active ? "var(--amber)" : "var(--border2)"}
+//         strokeWidth="1.5" />
+//       {/* Face */}
+//       <circle cx="15" cy="35" r="1.1" fill={p1Win || p1Active ? "var(--ink)" : "var(--ink3)"} />
+//       <circle cx="21" cy="35" r="1.1" fill={p1Win || p1Active ? "var(--ink)" : "var(--ink3)"} />
+//       <path d={p1Win ? "M14 39.5 Q18 42 22 39.5" : "M14 39 Q18 40.5 22 39"} fill="none"
+//         stroke={p1Win || p1Active ? "var(--ink)" : "var(--ink3)"} strokeWidth=".9" strokeLinecap="round" />
+//       {/* Torso */}
+//       <rect x="11" y="45" width="14" height="20" rx="4"
+//         fill={p1Win ? "#22c55e" : p1Active ? "var(--amber)" : "#3a5a48"}
+//         stroke={p1Win ? "var(--emerald)" : p1Active ? "var(--rust)" : "var(--border2)"}
+//         strokeWidth="1.2" />
+//       {/* Arms pulling rope — angled forward */}
+//       <line x1="25" y1="49" x2="30" y2="54" stroke={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
+//       <line x1="25" y1="54" x2="30" y2="58" stroke={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
+//       {/* Legs */}
+//       <line x1="15" y1="65" x2="13" y2="82" stroke={p1Win ? "#22c55e" : p1Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
+//       <line x1="21" y1="65" x2="23" y2="82" stroke={p1Win ? "#22c55e" : p1Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
+//       {/* Feet */}
+//       <rect x="10" y="81" width="8" height="4" rx="2" fill={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} />
+//       <rect x="20" y="81" width="8" height="4" rx="2" fill={p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--mist)"} />
 
-      {/* ── PLAYER 2 FIGURE (right) — mirrored ── */}
-      {p2Win && <circle cx="122" cy="54" r="14" fill="#22c55e22" style={{ filter: "blur(4px)" }} />}
-      {/* Head */}
-      <circle cx="122" cy="36" r="8"
-        fill={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "#c8ddd2"}
-        stroke={p2Win ? "var(--emerald)" : p2Active ? "var(--amber)" : "var(--border2)"}
-        strokeWidth="1.5" />
-      {/* Face */}
-      <circle cx="119" cy="35" r="1.1" fill={p2Win || p2Active ? "var(--ink)" : "var(--ink3)"} />
-      <circle cx="125" cy="35" r="1.1" fill={p2Win || p2Active ? "var(--ink)" : "var(--ink3)"} />
-      <path d={p2Win ? "M118 39.5 Q122 42 126 39.5" : "M118 39 Q122 40.5 126 39"} fill="none"
-        stroke={p2Win || p2Active ? "var(--ink)" : "var(--ink3)"} strokeWidth=".9" strokeLinecap="round" />
-      {/* Torso */}
-      <rect x="115" y="45" width="14" height="20" rx="4"
-        fill={p2Win ? "#22c55e" : p2Active ? "var(--amber)" : "#3a5a48"}
-        stroke={p2Win ? "var(--emerald)" : p2Active ? "var(--rust)" : "var(--border2)"}
-        strokeWidth="1.2" />
-      {/* Arms pulling rope — angled forward (left) */}
-      <line x1="115" y1="49" x2="110" y2="54" stroke={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
-      <line x1="115" y1="54" x2="110" y2="58" stroke={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
-      {/* Legs */}
-      <line x1="119" y1="65" x2="117" y2="82" stroke={p2Win ? "#22c55e" : p2Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
-      <line x1="125" y1="65" x2="127" y2="82" stroke={p2Win ? "#22c55e" : p2Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
-      {/* Feet */}
-      <rect x="112" y="81" width="8" height="4" rx="2" fill={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} />
-      <rect x="120" y="81" width="8" height="4" rx="2" fill={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} />
+//       {/* ── PLAYER 2 FIGURE (right) — mirrored ── */}
+//       {p2Win && <circle cx="122" cy="54" r="14" fill="#22c55e22" style={{ filter: "blur(4px)" }} />}
+//       {/* Head */}
+//       <circle cx="122" cy="36" r="8"
+//         fill={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "#c8ddd2"}
+//         stroke={p2Win ? "var(--emerald)" : p2Active ? "var(--amber)" : "var(--border2)"}
+//         strokeWidth="1.5" />
+//       {/* Face */}
+//       <circle cx="119" cy="35" r="1.1" fill={p2Win || p2Active ? "var(--ink)" : "var(--ink3)"} />
+//       <circle cx="125" cy="35" r="1.1" fill={p2Win || p2Active ? "var(--ink)" : "var(--ink3)"} />
+//       <path d={p2Win ? "M118 39.5 Q122 42 126 39.5" : "M118 39 Q122 40.5 126 39"} fill="none"
+//         stroke={p2Win || p2Active ? "var(--ink)" : "var(--ink3)"} strokeWidth=".9" strokeLinecap="round" />
+//       {/* Torso */}
+//       <rect x="115" y="45" width="14" height="20" rx="4"
+//         fill={p2Win ? "#22c55e" : p2Active ? "var(--amber)" : "#3a5a48"}
+//         stroke={p2Win ? "var(--emerald)" : p2Active ? "var(--rust)" : "var(--border2)"}
+//         strokeWidth="1.2" />
+//       {/* Arms pulling rope — angled forward (left) */}
+//       <line x1="115" y1="49" x2="110" y2="54" stroke={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
+//       <line x1="115" y1="54" x2="110" y2="58" stroke={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} strokeWidth="4" strokeLinecap="round" />
+//       {/* Legs */}
+//       <line x1="119" y1="65" x2="117" y2="82" stroke={p2Win ? "#22c55e" : p2Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
+//       <line x1="125" y1="65" x2="127" y2="82" stroke={p2Win ? "#22c55e" : p2Active ? "var(--amber)" : "#3a5a48"} strokeWidth="5" strokeLinecap="round" />
+//       {/* Feet */}
+//       <rect x="112" y="81" width="8" height="4" rx="2" fill={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} />
+//       <rect x="120" y="81" width="8" height="4" rx="2" fill={p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--mist)"} />
 
-      {/* ── ROPE ── */}
-      {/* Shadow */}
-      <path d={path} fill="none" stroke="#00000066" strokeWidth="7" strokeLinecap="round" transform="translate(0,4)" />
-      {/* Main rope */}
-      <path d={path} fill="none" stroke="#78350f" strokeWidth="6" strokeLinecap="round" />
-      <path d={path} fill="none" stroke="#b45309" strokeWidth="3.5" strokeLinecap="round" opacity=".85" />
-      <path d={path} fill="none" stroke="#fbbf24" strokeWidth="1" strokeLinecap="round" strokeDasharray="4,6" opacity=".5" />
+//       {/* ── ROPE ── */}
+//       {/* Shadow */}
+//       <path d={path} fill="none" stroke="#00000066" strokeWidth="7" strokeLinecap="round" transform="translate(0,4)" />
+//       {/* Main rope */}
+//       <path d={path} fill="none" stroke="#78350f" strokeWidth="6" strokeLinecap="round" />
+//       <path d={path} fill="none" stroke="#b45309" strokeWidth="3.5" strokeLinecap="round" opacity=".85" />
+//       <path d={path} fill="none" stroke="#fbbf24" strokeWidth="1" strokeLinecap="round" strokeDasharray="4,6" opacity=".5" />
 
-      {/* ── KNOT ── */}
-      <circle cx={kx} cy={ky} r="8" fill="#ff6b35" stroke="#fffbeb" strokeWidth="2.5"
-        style={{ filter: "drop-shadow(0 0 6px #ff6b3566)", transition: "cx .55s cubic-bezier(.34,1.56,.64,1)" }} />
-      <circle cx={kx} cy={ky} r="4" fill="#fff" opacity=".9"
-        style={{ transition: "cx .55s cubic-bezier(.34,1.56,.64,1)" }} />
-    </svg>
+//       {/* ── KNOT ── */}
+//       <circle cx={kx} cy={ky} r="8" fill="#ff6b35" stroke="#fffbeb" strokeWidth="2.5"
+//         style={{ filter: "drop-shadow(0 0 6px #ff6b3566)", transition: "cx .55s cubic-bezier(.34,1.56,.64,1)" }} />
+//       <circle cx={kx} cy={ky} r="4" fill="#fff" opacity=".9"
+//         style={{ transition: "cx .55s cubic-bezier(.34,1.56,.64,1)" }} />
+//     </svg>
 
-    {/* Pull direction bar with arrows */}
-    <div style={{ marginTop: 8 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-        <span style={{ fontSize: "var(--t-xs)", fontWeight: 800, color: p1Win ? "var(--emerald)" : "var(--text3)", display: "flex", alignItems: "center", gap: 3 }}>
-          {p1Win && "◀◀ "}{p1} {position > 10 ? "PULLING!" : ""}
-        </span>
-        <span style={{ fontSize: "var(--t-xs)", fontWeight: 800, color: p2Win ? "var(--emerald)" : "var(--text3)", display: "flex", alignItems: "center", gap: 3 }}>
-          {position < -10 ? "PULLING! " : ""}{p2}{p2Win && " ▶▶"}
-        </span>
-      </div>
-      <div style={{ display: "flex", height: 14, borderRadius: 7, overflow: "hidden", gap: 1, position: "relative" }}>
-        <div style={{ flex: Math.max(4, kp), background: p1Win ? "linear-gradient(90deg,#059669,var(--emerald))" : "linear-gradient(90deg,var(--forest2),#22c55e88)", transition: "flex .55s cubic-bezier(.34,1.56,.64,1)", borderRadius: "7px 0 0 7px" }} />
-        {/* Centre marker */}
-        <div style={{ width: 3, background: "#ffffff22", flexShrink: 0 }} />
-        <div style={{ flex: Math.max(4, 100 - kp), background: p2Win ? "linear-gradient(90deg,var(--amber),var(--rust))" : "linear-gradient(90deg,#f59e0b88,var(--rust))", transition: "flex .55s cubic-bezier(.34,1.56,.64,1)", borderRadius: "0 7px 7px 0" }} />
-      </div>
-    </div>
-  </div>);
+//     {/* Pull direction bar with arrows */}
+//     <div style={{ marginTop: 8 }}>
+//       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+//         <span style={{ fontSize: "var(--t-xs)", fontWeight: 800, color: p1Win ? "var(--emerald)" : "var(--text3)", display: "flex", alignItems: "center", gap: 3 }}>
+//           {p1Win && "◀◀ "}{p1} {position > 10 ? "PULLING!" : ""}
+//         </span>
+//         <span style={{ fontSize: "var(--t-xs)", fontWeight: 800, color: p2Win ? "var(--emerald)" : "var(--text3)", display: "flex", alignItems: "center", gap: 3 }}>
+//           {position < -10 ? "PULLING! " : ""}{p2}{p2Win && " ▶▶"}
+//         </span>
+//       </div>
+//       <div style={{ display: "flex", height: 14, borderRadius: 7, overflow: "hidden", gap: 1, position: "relative" }}>
+//         <div style={{ flex: Math.max(4, kp), background: p1Win ? "linear-gradient(90deg,#059669,var(--emerald))" : "linear-gradient(90deg,var(--forest2),#22c55e88)", transition: "flex .55s cubic-bezier(.34,1.56,.64,1)", borderRadius: "7px 0 0 7px" }} />
+//         {/* Centre marker */}
+//         <div style={{ width: 3, background: "#ffffff22", flexShrink: 0 }} />
+//         <div style={{ flex: Math.max(4, 100 - kp), background: p2Win ? "linear-gradient(90deg,var(--amber),var(--rust))" : "linear-gradient(90deg,#f59e0b88,var(--rust))", transition: "flex .55s cubic-bezier(.34,1.56,.64,1)", borderRadius: "0 7px 7px 0" }} />
+//       </div>
+//     </div>
+//   </div>);
+// }
+
+
+function TugPlayer({ side, active, winning, dragging, dragDistance }) {
+  const isRight = side === "right";
+
+  const color = winning ? "#22c55e" : active ? "#f59e0b" : "#527b65";
+  const skin = winning ? "#f1c7a5" : "#d9a982";
+  const stroke = winning ? "#86efac" : active ? "#fbbf24" : "#294b3a";
+
+  const mirror = isRight ? "translate(140 0) scale(-1 1)" : "";
+
+  return (
+    <g transform={`translate(${dragDistance} 0) ${mirror}`}>
+      {/* Body movement and leaning */}
+      <g className={`tug-body ${active || winning ? "pulling" : ""} ${dragging ? "being-dragged" : ""}`}>
+
+        {/* Shadow beneath feet */}
+        <ellipse
+          cx="18"
+          cy="85"
+          rx="12"
+          ry="2"
+          fill="#000"
+          opacity=".22"
+        />
+
+        {/* Back leg */}
+        <g className="tug-leg tug-leg-back">
+          <path
+            d="M14 62 L10 73 L7 81"
+            fill="none"
+            stroke="#253e32"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M7 81 L2 83"
+            fill="none"
+            stroke={skin}
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* Front leg */}
+        <g className="tug-leg tug-leg-front">
+          <path
+            d="M22 62 L24 73 L27 81"
+            fill="none"
+            stroke="#253e32"
+            strokeWidth="5.5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M27 81 L32 83"
+            fill="none"
+            stroke={skin}
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* Shoes */}
+        <path
+          d="M1 82 Q0 81 2 79 L9 79 L11 83 Q7 86 1 84Z"
+          fill="#252d31"
+        />
+        <path
+          d="M25 82 Q25 80 28 80 L33 81 L35 84 Q30 86 25 84Z"
+          fill="#252d31"
+        />
+
+        {/* Torso */}
+        <path
+          d="M11 43 Q18 40 25 44 L27 62 Q19 67 10 62Z"
+          fill={color}
+          stroke={stroke}
+          strokeWidth="1.2"
+        />
+
+        {/* Shirt details */}
+        <path
+          d="M17 44 L18 61"
+          stroke="#ffffff"
+          opacity=".2"
+          strokeWidth="1"
+        />
+
+        {/* Neck */}
+        <path
+          d="M15 39 L15 44 L21 44 L21 39"
+          fill={skin}
+        />
+
+        {/* Rear arm */}
+        <path
+          d="M11 47 L7 52 L15 56 L23 55"
+          fill="none"
+          stroke={color}
+          strokeWidth="4.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Front arm */}
+        <path
+          d="M25 47 L30 52 L35 55"
+          fill="none"
+          stroke={color}
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Elbow and hand */}
+        <circle cx="35" cy="55" r="2.5" fill={skin} />
+        <circle cx="23" cy="55" r="2.5" fill={skin} />
+
+        {/* Head */}
+        <g className="tug-head">
+          <circle
+            cx="18"
+            cy="31"
+            r="7"
+            fill={skin}
+            stroke="#9b7055"
+            strokeWidth=".8"
+          />
+
+          {/* Hair */}
+          <path
+            d="M11 30 Q10 23 17 23 Q25 22 25 30 L22 28 L18 26 L13 29Z"
+            fill="#30251f"
+          />
+
+          {/* Ear */}
+          <circle cx="11" cy="32" r="1.6" fill={skin} />
+
+          {/* Face */}
+          <circle cx="21" cy="30" r=".8" fill="#29201c" />
+          <path
+            d="M19 34 Q21 35 23 33"
+            stroke="#704936"
+            strokeWidth=".7"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* Grip hands */}
+        <circle cx="35" cy="55" r="2.4" fill={skin} />
+      </g>
+    </g>
+  );
 }
+
+
+function TugRope({ position, p1, p2, p1Active, p2Active }) {
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+  // Keep the original winner conditions.
+  const p1Win = position > 25;
+  const p2Win = position < -25;
+
+  const kp = 50 + (clamp(position, -100, 100) / 100) * 38;
+
+  // Rope movement.
+  const tension = Math.abs(position) / 100;
+  const kx = 70 - (clamp(position, -100, 100) / 100) * 34;
+
+  const ky = 55 + Math.sin(Math.PI * ((kx - 29) / 82)) * (3 + tension * 2);
+
+  // How far the losing player gets dragged.
+  const victoryProgress = clamp((Math.abs(position) - 25) / 75, 0, 1);
+  const dragDistance = victoryProgress * 14;
+
+  // P1 wins: P2 gets dragged left.
+  // P2 wins: P1 gets dragged right.
+  const p1Drag = p2Win ? dragDistance : 0;
+  const p2Drag = p1Win ? -dragDistance : 0;
+
+  // Rope follows the knot.
+  const ropePath = `
+    M 29 55
+    C 42 ${50 + tension * 2}
+      52 ${ky + 2}
+      ${kx} ${ky}
+    S 99 ${50 + tension * 2}
+      111 55
+  `;
+
+  const ropeEnd = 29 + (kx - 29) * 0.35;
+
+  return (
+    <div className="tug-scene">
+
+      <style>{`
+        .tug-scene {
+          width: 100%;
+          overflow: hidden;
+          position: relative;
+          user-select: none;
+        }
+
+        .tug-scene svg {
+          width: 100%;
+          height: clamp(145px, 25vw, 205px);
+          display: block;
+          overflow: visible;
+        }
+
+        /* Character pulling motion */
+        .tug-body {
+          transform-box: fill-box;
+          transform-origin: 50% 70%;
+          transition: transform .35s ease-out;
+        }
+
+        .tug-body.pulling {
+          animation: tug-body-pull .65s ease-in-out infinite;
+        }
+
+        .tug-body.being-dragged {
+          animation: tug-body-drag .32s ease-in-out infinite;
+        }
+
+        @keyframes tug-body-pull {
+          0%, 100% { transform: rotate(-9deg) translateY(0); }
+          50% { transform: rotate(-15deg) translateY(1px); }
+        }
+
+        @keyframes tug-body-drag {
+          0%, 100% { transform: rotate(5deg) translateY(0); }
+          50% { transform: rotate(11deg) translateY(2px); }
+        }
+
+        /* Head reacts to body movement */
+        .tug-head {
+          transform-box: fill-box;
+          transform-origin: center bottom;
+          animation: tug-head-move .65s ease-in-out infinite;
+        }
+
+        @keyframes tug-head-move {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(4deg); }
+        }
+
+        /* Feet push against the ground */
+        .tug-leg {
+          transform-box: fill-box;
+          transform-origin: top center;
+        }
+
+        .pulling .tug-leg-front {
+          animation: tug-foot-front .65s ease-in-out infinite;
+        }
+
+        .pulling .tug-leg-back {
+          animation: tug-foot-back .65s ease-in-out infinite;
+        }
+
+        .being-dragged .tug-leg {
+          animation: tug-foot-slide .35s ease-in-out infinite;
+        }
+
+        @keyframes tug-foot-front {
+          0%, 100% { transform: rotate(-4deg); }
+          50% { transform: rotate(5deg); }
+        }
+
+        @keyframes tug-foot-back {
+          0%, 100% { transform: rotate(5deg); }
+          50% { transform: rotate(-4deg); }
+        }
+
+        @keyframes tug-foot-slide {
+          0%, 100% { transform: translateX(0) rotate(5deg); }
+          50% { transform: translateX(-2px) rotate(-8deg); }
+        }
+
+        /* Rope vibrates under tension */
+        .tug-rope {
+          animation: rope-tension .28s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @keyframes rope-tension {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(${tension > .2 ? "1.1px" : ".3px"}); }
+        }
+
+        /* Rope knot */
+        .tug-knot {
+          transition: transform .45s cubic-bezier(.2,.75,.25,1);
+        }
+
+        .tug-knot-core {
+          animation: knot-shake .3s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        @keyframes knot-shake {
+          0%, 100% { transform: rotate(-4deg); }
+          50% { transform: rotate(4deg); }
+        }
+
+        /* Winning glow */
+        .tug-winning-glow {
+          animation: winner-glow 1s ease-in-out infinite;
+        }
+
+        @keyframes winner-glow {
+          0%, 100% { opacity: .12; }
+          50% { opacity: .4; }
+        }
+
+        /* Pull direction indicators */
+        .tug-arrow {
+          animation: arrow-pulse .7s ease-in-out infinite;
+        }
+
+        @keyframes arrow-pulse {
+          0%, 100% { opacity: .45; }
+          50% { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .tug-scene *,
+          .tug-scene *::before {
+            animation-duration: 1.5s !important;
+          }
+        }
+      `}</style>
+
+      {/* Player labels */}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 5,
+        padding: "0 4px"
+      }}>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: p1Win ? "#22c55e" : p1Active ? "#f59e0b" : "#64748b",
+            boxShadow: p1Win ? "0 0 9px #22c55e" : "none"
+          }} />
+
+          <span style={{
+            fontWeight: 800,
+            fontSize: "var(--t-sm)",
+            color: p1Win ? "#86efac" : p1Active ? "#fbbf24" : "var(--text3)"
+          }}>
+            {p1}
+          </span>
+
+          {p1Active && !p1Win && (
+            <span style={{ color: "#fbbf24", fontSize: 10 }}>
+              PULLING!
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {p2Active && !p2Win && (
+            <span style={{ color: "#fbbf24", fontSize: 10 }}>
+              PULLING!
+            </span>
+          )}
+
+          <span style={{
+            fontWeight: 800,
+            fontSize: "var(--t-sm)",
+            color: p2Win ? "#86efac" : p2Active ? "#fbbf24" : "var(--text3)"
+          }}>
+            {p2}
+          </span>
+
+          <span style={{
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: p2Win ? "#22c55e" : p2Active ? "#f59e0b" : "#64748b",
+            boxShadow: p2Win ? "0 0 9px #22c55e" : "none"
+          }} />
+        </div>
+      </div>
+
+      {/* Tug-of-war arena */}
+      <svg
+        viewBox="0 0 140 105"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label={`Tug of war between ${p1} and ${p2}`}
+      >
+
+        <defs>
+          <linearGradient id="tugRopeGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#d69a45" />
+            <stop offset="45%" stopColor="#94501b" />
+            <stop offset="100%" stopColor="#542b12" />
+          </linearGradient>
+
+          <filter id="tugShadow">
+            <feGaussianBlur stdDeviation="2" />
+          </filter>
+        </defs>
+
+        {/* Ground */}
+        <path
+          d="M5 86 Q70 82 135 86"
+          stroke="#647568"
+          strokeWidth="1"
+          opacity=".35"
+          fill="none"
+        />
+
+        <path
+          d="M8 89 H132"
+          stroke="#647568"
+          strokeWidth="2"
+          opacity=".15"
+        />
+
+        {/* Ground markings */}
+        <line
+          x1="70" y1="17" x2="70" y2="87"
+          stroke="var(--border2)"
+          strokeDasharray="3 3"
+          strokeWidth=".8"
+          opacity=".6"
+        />
+
+        {/* Danger zones */}
+        <rect x="4" y="20" width="12" height="65" fill="#ef4444" opacity=".04" />
+        <rect x="124" y="20" width="12" height="65" fill="#ef4444" opacity=".04" />
+
+        {/* Winner glow */}
+        {p1Win && (
+          <circle
+            cx="18" cy="53" r="17"
+            fill="#22c55e"
+            className="tug-winning-glow"
+            filter="url(#tugShadow)"
+          />
+        )}
+
+        {p2Win && (
+          <circle
+            cx="122" cy="53" r="17"
+            fill="#22c55e"
+            className="tug-winning-glow"
+            filter="url(#tugShadow)"
+          />
+        )}
+
+        {/* Players */}
+        <TugPlayer
+          side="left"
+          active={p1Active}
+          winning={p1Win}
+          dragging={p1Drag > 0}
+          dragDistance={p1Drag}
+        />
+
+        <TugPlayer
+          side="right"
+          active={p2Active}
+          winning={p2Win}
+          dragging={p2Drag > 0}
+          dragDistance={p2Drag}
+        />
+
+        {/* Rope shadow */}
+        <path
+          d={ropePath}
+          fill="none"
+          stroke="#000"
+          strokeWidth="8"
+          opacity=".35"
+          strokeLinecap="round"
+          transform="translate(0 4)"
+        />
+
+        {/* Main rope */}
+        <g className="tug-rope">
+          <path
+            d={ropePath}
+            fill="none"
+            stroke="#542b12"
+            strokeWidth="7"
+            strokeLinecap="round"
+          />
+
+          <path
+            d={ropePath}
+            fill="none"
+            stroke="url(#tugRopeGradient)"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+
+          <path
+            d={ropePath}
+            fill="none"
+            stroke="#f5c77b"
+            strokeWidth="1"
+            strokeDasharray="2 4"
+            opacity=".65"
+          />
+
+          {/* Rope fibres */}
+          <path
+            d={ropePath}
+            fill="none"
+            stroke="#ffe1a6"
+            strokeWidth=".6"
+            strokeDasharray="5 8"
+            opacity=".5"
+          />
+        </g>
+
+        {/* Centre knot */}
+        <g className="tug-knot">
+          <circle
+            cx={kx}
+            cy={ky}
+            r="6"
+            fill="#743b17"
+            stroke="#f4c078"
+            strokeWidth="1.5"
+          />
+
+          <circle
+            cx={kx}
+            cy={ky}
+            r="3.7"
+            fill="#f97316"
+            stroke="#fff1d6"
+            strokeWidth=".8"
+          />
+
+          <circle
+            cx={kx}
+            cy={ky}
+            r="1.3"
+            fill="#fff"
+            opacity=".8"
+          />
+        </g>
+
+        {/* Pull arrows */}
+        {p1Win && (
+          <g className="tug-arrow">
+            <path
+              d="M52 19 L44 19 M48 15 L44 19 L48 23"
+              stroke="#22c55e"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </g>
+        )}
+
+        {p2Win && (
+          <g className="tug-arrow">
+            <path
+              d="M88 19 L96 19 M92 15 L96 19 L92 23"
+              stroke="#22c55e"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </g>
+        )}
+
+      </svg>
+
+      {/* Pull progress */}
+      <div style={{ marginTop: 5 }}>
+
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 5,
+          fontSize: "var(--t-xs)",
+          fontWeight: 800
+        }}>
+          <span style={{ color: p1Win ? "#22c55e" : "var(--text3)" }}>
+            {p1Win ? "◀◀ VICTORY!" : position > 10 ? "PULLING!" : p1}
+          </span>
+
+          <span style={{ color: p2Win ? "#22c55e" : "var(--text3)" }}>
+            {p2Win ? "VICTORY! ▶▶" : position < -10 ? "PULLING!" : p2}
+          </span>
+        </div>
+
+        <div style={{
+          display: "flex",
+          height: 13,
+          borderRadius: 8,
+          overflow: "hidden",
+          gap: 2,
+          background: "var(--border)"
+        }}>
+
+          <div style={{
+            flex: Math.max(4, kp),
+            background: "linear-gradient(90deg,#047857,#22c55e)",
+            transition: "flex .4s ease",
+            borderRadius: "8px 0 0 8px"
+          }} />
+
+          <div style={{
+            flex: Math.max(4, 100 - kp),
+            background: "linear-gradient(90deg,#f59e0b,#c2410c)",
+            transition: "flex .4s ease",
+            borderRadius: "0 8px 8px 0"
+          }} />
+
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 
 // ── TIMER ─────────────────────────────────────────────────────────────────────
 function Timer({ seconds, total, onExpire }) {
