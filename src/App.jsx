@@ -1891,7 +1891,7 @@ function PlayersForm({ cfg, setCfg, onStart }) {
       </div>
     </div>
     <button className="btn btn-primary btn-full btn-lg"
-      style={{ fontFamily: "var(--display)", letterSpacing: 2, marginTop: 6, boxShadow: "0 8px 32px #d4a84333" }}
+      style={{ letterSpacing: 2, marginTop: 6, boxShadow: "0 8px 32px #d4a84333" }}
       onClick={handleStart}>
       <Ic icon={Play} size={16} /> Generate &amp; Play
     </button>
@@ -2378,7 +2378,7 @@ export default function App() {
           if (!isAbort) {
             setLoadPct(90);
             setLoadMsg(isRL
-              ? `API busy — loading offline questions for ${gc.subject}…`
+              ? `API busy, loading offline questions for ${gc.subject}…`
               : ` Loading offline questions for ${gc.subject}…`);
           }
           setIsOffline(true);
