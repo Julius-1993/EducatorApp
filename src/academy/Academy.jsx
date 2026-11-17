@@ -180,9 +180,8 @@ export function Academy({ onBack, callOpenAI }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // ACADEMY HUB
-// ─────────────────────────────────────────────────────────────────────────────
 function AcademyHub({ enrolments, profile, onSelectLang, onEnrolNew, onViewProgress, onViewAchievements }) {
   const myLangs = LANGUAGES.filter(l => enrolments[l.id]);
   const xpNeeds = [0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5000];
@@ -284,9 +283,8 @@ function AcademyHub({ enrolments, profile, onSelectLang, onEnrolNew, onViewProgr
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // LANGUAGE CHOOSER
-// ─────────────────────────────────────────────────────────────────────────────
 function LanguageChooser({ onSelect, enrolments }) {
   return (
     <div style={{ padding: '0 var(--s-4)' }}>
@@ -325,9 +323,8 @@ function LanguageChooser({ onSelect, enrolments }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // ENROLMENT SCREEN
-// ─────────────────────────────────────────────────────────────────────────────
 function EnrolScreen({ lang, onEnrol, onBack }) {
   const [level, setLevel] = useState('beginner');
   const [eduGroup, setEduGroup] = useState('sss');
@@ -386,9 +383,8 @@ function EnrolScreen({ lang, onEnrol, onBack }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // LANGUAGE HOME — module/lesson browser
-// ─────────────────────────────────────────────────────────────────────────────
 function LangHome({ lang, enrolment, onStartLesson, onOpenTutor, stats }) {
   // Show the enrolled level's modules only — no silent substitution
   const curriculum = CURRICULUM[lang.id]?.[enrolment.level] || [];
@@ -486,9 +482,8 @@ function LangHome({ lang, enrolment, onStartLesson, onOpenTutor, stats }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // LESSON VIEW — vocabulary, grammar, dialogue, exercises, assessment
-// ─────────────────────────────────────────────────────────────────────────────
 function LessonView({ lang, lesson, level, eduGroup, onComplete, onBack }) {
   const [phase, setPhase] = useState('vocab');  // vocab|grammar|dialogue|exercises|assessment
   const [exIdx, setExIdx] = useState(0);

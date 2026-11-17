@@ -1,44 +1,166 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// SPEECH MODULE — Web Speech API wrapper
-// Uses browser's built-in TTS and STT — no API key, no cost
-// Works offline for TTS. STT requires internet in most browsers.
-// ─────────────────────────────────────────────────────────────────────────────
 
-// ── TEXT TO SPEECH ──────────────────────────────────────────────────────────
+// TEXT TO SPEECH
+// const TTS = {
+//   supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
+
+//   speak(text, lang = 'en-US', rate = 1.0, onEnd = null) {
+//     if (!this.supported) return false;
+//     window.speechSynthesis.cancel(); // stop any current speech
+//     const utt = new SpeechSynthesisUtterance(text);
+//     utt.lang = lang;
+//     utt.rate = rate;
+//     utt.pitch = 1;
+//     utt.volume = 1;
+//     if (onEnd) utt.onend = onEnd;
+//     utt.onerror = (e) => console.warn('TTS error:', e.error);
+//     // Try to find a voice for the language
+//     const voices = window.speechSynthesis.getVoices();
+//     const match = voices.find(v => v.lang.startsWith(lang.split('-')[0]));
+//     if (match) utt.voice = match;
+//     window.speechSynthesis.speak(utt);
+//     return true;
+//   },
+
+//   stop() {
+//     if (this.supported) window.speechSynthesis.cancel();
+//   },
+
+//   getVoices(lang) {
+//     if (!this.supported) return [];
+//     return window.speechSynthesis.getVoices().filter(v =>
+//       v.lang.startsWith(lang.split('-')[0])
+//     );
+//   },
+// };
+
+
+// ── TEXT TO SPEECH (Vercel / production-safe)
 const TTS = {
-  supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
+  get supported() {
+    return (
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window &&
+      typeof window.SpeechSynthesisUtterance !== "undefined"
+    );
+  },
 
-  speak(text, lang = 'en-US', rate = 1.0, onEnd = null) {
-    if (!this.supported) return false;
-    window.speechSynthesis.cancel(); // stop any current speech
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = lang;
-    utt.rate = rate;
-    utt.pitch = 1;
-    utt.volume = 1;
-    if (onEnd) utt.onend = onEnd;
-    utt.onerror = (e) => console.warn('TTS error:', e.error);
-    // Try to find a voice for the language
-    const voices = window.speechSynthesis.getVoices();
-    const match = voices.find(v => v.lang.startsWith(lang.split('-')[0]));
-    if (match) utt.voice = match;
-    window.speechSynthesis.speak(utt);
+  _requestId: 0,
+
+  speak(text, lang = "en-US", rate = 1.0, onEnd = null) {
+    if (!this.supported || !text) {
+      console.warn("Text-to-speech is not supported or text is empty.");
+      return false;
+    }
+
+    const synth = window.speechSynthesis;
+    const requestId = ++this._requestId;
+
+    // Stop previous speech.
+    synth.cancel();
+
+    const speakNow = () => {
+      // Do not play an outdated request.
+      if (requestId !== this._requestId) return;
+
+      const utterance = new SpeechSynthesisUtterance(String(text));
+      utterance.lang = lang;
+      utterance.rate = rate;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      const voices = synth.getVoices();
+
+      // Prefer an exact language match, then a language-family match.
+      const language = lang.toLowerCase();
+
+      const voice =
+        voices.find(v => v.lang.toLowerCase() === language) ||
+        voices.find(v =>
+          v.lang.toLowerCase().startsWith(language.split("-")[0])
+        );
+
+      if (voice) {
+        utterance.voice = voice;
+      } else {
+        console.warn("No matching voice found for:", lang);
+        console.log("Available voices:", voices.map(v => v.lang));
+      }
+
+      let finished = false;
+
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        onEnd?.();
+      };
+
+      utterance.onend = finish;
+
+      utterance.onerror = (event) => {
+        console.warn("TTS error:", event.error);
+        finish();
+      };
+
+      synth.resume();
+      synth.speak(utterance);
+    };
+
+    // Some browsers load their voices asynchronously.
+    const voices = synth.getVoices();
+
+    if (voices.length > 0) {
+      speakNow();
+    } else {
+      let completed = false;
+
+      const cleanup = () => {
+        if (completed) return;
+        completed = true;
+        synth.removeEventListener("voiceschanged", checkVoices);
+        clearTimeout(fallback);
+      };
+
+      const checkVoices = () => {
+        if (synth.getVoices().length > 0) {
+          cleanup();
+          speakNow();
+        }
+      };
+
+      const fallback = setTimeout(() => {
+        cleanup();
+        speakNow(); // Use the browser's default voice if necessary.
+      }, 1500);
+
+      synth.addEventListener("voiceschanged", checkVoices);
+    }
+
     return true;
   },
 
   stop() {
-    if (this.supported) window.speechSynthesis.cancel();
+    this._requestId++;
+
+    if (this.supported) {
+      window.speechSynthesis.cancel();
+    }
   },
 
   getVoices(lang) {
     if (!this.supported) return [];
-    return window.speechSynthesis.getVoices().filter(v =>
-      v.lang.startsWith(lang.split('-')[0])
+
+    const voices = window.speechSynthesis.getVoices();
+
+    if (!lang) return voices;
+
+    return voices.filter(v =>
+      v.lang.toLowerCase().startsWith(lang.toLowerCase().split("-")[0])
     );
-  },
+  }
 };
 
-// ── SPEECH RECOGNITION ─────────────────────────────────────────────────────
+
+//  SPEECH RECOGNITION 
 const SpeechRecognition = typeof window !== 'undefined'
   ? (window.SpeechRecognition || window.webkitSpeechRecognition)
   : null;
