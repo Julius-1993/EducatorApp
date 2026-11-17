@@ -1793,6 +1793,10 @@ function SplashScreen({ onPlay, onSettings, hasKey, onAcademy }) {
           Language Learning Academy
         </button>
       </div>
+      <div className="font-xs" style={{ color: "white", marginTop: "var(--s-4)" }}>
+        © {new Date().getFullYear()} Edtek Interactive Smartboard. All Rights Reserved.
+      </div>
+      <div style={{ color: "white", fontSize: "var(--t-xs)", marginTop: "var(--s-4)" }}>Powered by AJ-Tech Solutions</div>
     </div>
   </div>);
 }
@@ -1810,7 +1814,7 @@ function SetupScreen({ onStart, onHome }) {
   function pick(u) { Sound.select(); setCfg(c => ({ ...c, ...u })); setStep(s => s + 1); }
   return (<div className="screen game-screen" style={{ background: "var(--bg)", padding: "var(--s-4) var(--s-4) calc(env(safe-area-inset-bottom,0px) + 100px)" }}>
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: "var(--s-5)",paddingTop: "max(env(safe-area-inset-top,0px),40px)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: "var(--s-5)", paddingTop: "max(env(safe-area-inset-top,0px),40px)" }}>
         {step > 0 && <button className="btn btn-ghost btn-icon" onClick={() => setStep(s => s - 1)} style={{ fontSize: 18, flexShrink: 0 }}><Ic icon={ChevronLeft} size={16} /></button>}
         <div style={{ flex: 1 }}>
           <div className="progress"><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
@@ -2475,10 +2479,10 @@ export default function App() {
 
   useEffect(() => {
     if (gameCfg?.mode !== "ai") return;
-    if (curPlayer !== 1) return;        
-    if (revealed) return;            
+    if (curPlayer !== 1) return;
+    if (revealed) return;
     if (!questions[qIndex]) return;
-    if (aiPlayedRef.current) return; 
+    if (aiPlayedRef.current) return;
     aiPlayedRef.current = true;
     setAiThink(true);
     const delay = 900 + Math.random() * 1100;
