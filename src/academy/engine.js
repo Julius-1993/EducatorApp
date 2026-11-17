@@ -272,7 +272,7 @@ function gradeAssessment(assessment, responses) {
   return { score, results, passed: score >= 70 };
 }
 
-// ── AI tutor usage guard ───────────────────────────────────────────────────
+// ── AI tutor usage guard
 const TUTOR_LIMIT_PER_DAY = 20;
 function canUseTutor() {
   const d = load();

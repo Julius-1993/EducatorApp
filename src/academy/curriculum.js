@@ -1,13 +1,5 @@
-// Language Academy curriculum. Beginner lessons live here; the other levels are in their own files
-// and merged below, so there is exactly ONE definition of every lesson.
 import { INTERMEDIATE_MODULES } from './curriculum_intermediate.js';
 import { ADVANCED_MODULES, EXPERT_MODULES } from './curriculum_advanced.js';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LANGUAGE ACADEMY CURRICULUM — AI-drafted content, NOT yet reviewed by a human specialist
-// Every lesson is a draft. A language teacher must verify it before classroom use.
-// AI is used ONLY for extra practice exercises, never as the source of truth
-// ─────────────────────────────────────────────────────────────────────────────
 
 const LANGUAGES = [
   {

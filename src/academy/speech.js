@@ -1,146 +1,69 @@
-
-// TEXT TO SPEECH
-// const TTS = {
-//   supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
-
-//   speak(text, lang = 'en-US', rate = 1.0, onEnd = null) {
-//     if (!this.supported) return false;
-//     window.speechSynthesis.cancel(); // stop any current speech
-//     const utt = new SpeechSynthesisUtterance(text);
-//     utt.lang = lang;
-//     utt.rate = rate;
-//     utt.pitch = 1;
-//     utt.volume = 1;
-//     if (onEnd) utt.onend = onEnd;
-//     utt.onerror = (e) => console.warn('TTS error:', e.error);
-//     // Try to find a voice for the language
-//     const voices = window.speechSynthesis.getVoices();
-//     const match = voices.find(v => v.lang.startsWith(lang.split('-')[0]));
-//     if (match) utt.voice = match;
-//     window.speechSynthesis.speak(utt);
-//     return true;
-//   },
-
-//   stop() {
-//     if (this.supported) window.speechSynthesis.cancel();
-//   },
-
-//   getVoices(lang) {
-//     if (!this.supported) return [];
-//     return window.speechSynthesis.getVoices().filter(v =>
-//       v.lang.startsWith(lang.split('-')[0])
-//     );
-//   },
-// };
-
-
 // ── TEXT TO SPEECH (Vercel / production-safe)
 const TTS = {
   get supported() {
     return (
       typeof window !== "undefined" &&
       "speechSynthesis" in window &&
-      typeof window.SpeechSynthesisUtterance !== "undefined"
+      typeof SpeechSynthesisUtterance !== "undefined"
     );
   },
 
-  _requestId: 0,
-
-  speak(text, lang = "en-US", rate = 1.0, onEnd = null) {
+  speak(text, lang = "en-US", rate = 0.9, onEnd = null) {
     if (!this.supported || !text) {
-      console.warn("Text-to-speech is not supported or text is empty.");
+      console.warn("Speech synthesis is unavailable.");
       return false;
     }
 
     const synth = window.speechSynthesis;
-    const requestId = ++this._requestId;
 
-    // Stop previous speech.
     synth.cancel();
 
-    const speakNow = () => {
-      // Do not play an outdated request.
-      if (requestId !== this._requestId) return;
+    const utterance = new SpeechSynthesisUtterance(String(text));
 
-      const utterance = new SpeechSynthesisUtterance(String(text));
-      utterance.lang = lang;
-      utterance.rate = rate;
-      utterance.pitch = 1;
-      utterance.volume = 1;
+    utterance.lang = lang;
+    utterance.rate = rate;
+    utterance.pitch = 1;
+    utterance.volume = 1;
 
-      const voices = synth.getVoices();
+    // Select a matching voice if the device has one installed.
+    const voices = synth.getVoices();
+    const languageCode = lang.toLowerCase().split("-")[0];
 
-      // Prefer an exact language match, then a language-family match.
-      const language = lang.toLowerCase();
+    const matchingVoice =
+      voices.find(v => v.lang.toLowerCase() === lang.toLowerCase()) ||
+      voices.find(v =>
+        v.lang.toLowerCase().startsWith(languageCode)
+      );
 
-      const voice =
-        voices.find(v => v.lang.toLowerCase() === language) ||
-        voices.find(v =>
-          v.lang.toLowerCase().startsWith(language.split("-")[0])
-        );
+    if (matchingVoice) {
+      utterance.voice = matchingVoice;
+      console.log("Using voice:", matchingVoice.name, matchingVoice.lang);
+    } else {
+      console.warn(
+        "No installed voice found for:",
+        lang,
+        "Available voices:",
+        voices.map(v => v.lang)
+      );
+    }
 
-      if (voice) {
-        utterance.voice = voice;
-      } else {
-        console.warn("No matching voice found for:", lang);
-        console.log("Available voices:", voices.map(v => v.lang));
-      }
-
-      let finished = false;
-
-      const finish = () => {
-        if (finished) return;
-        finished = true;
-        onEnd?.();
-      };
-
-      utterance.onend = finish;
-
-      utterance.onerror = (event) => {
-        console.warn("TTS error:", event.error);
-        finish();
-      };
-
-      synth.resume();
-      synth.speak(utterance);
+    utterance.onend = () => {
+      if (onEnd) onEnd();
     };
 
-    // Some browsers load their voices asynchronously.
-    const voices = synth.getVoices();
+    utterance.onerror = (event) => {
+      console.error("Speech error:", event.error);
+      if (onEnd) onEnd();
+    };
 
-    if (voices.length > 0) {
-      speakNow();
-    } else {
-      let completed = false;
-
-      const cleanup = () => {
-        if (completed) return;
-        completed = true;
-        synth.removeEventListener("voiceschanged", checkVoices);
-        clearTimeout(fallback);
-      };
-
-      const checkVoices = () => {
-        if (synth.getVoices().length > 0) {
-          cleanup();
-          speakNow();
-        }
-      };
-
-      const fallback = setTimeout(() => {
-        cleanup();
-        speakNow(); // Use the browser's default voice if necessary.
-      }, 1500);
-
-      synth.addEventListener("voiceschanged", checkVoices);
-    }
+    // Speak immediately. Do not wait for voiceschanged.
+    synth.resume();
+    synth.speak(utterance);
 
     return true;
   },
 
   stop() {
-    this._requestId++;
-
     if (this.supported) {
       window.speechSynthesis.cancel();
     }
@@ -158,6 +81,7 @@ const TTS = {
     );
   }
 };
+
 
 
 //  SPEECH RECOGNITION 
